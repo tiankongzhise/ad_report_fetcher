@@ -1,0 +1,2 @@
+# ad_report_fetcher
+通过API或者SDK从不同渠道获取广告投放数据报告
