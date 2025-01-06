@@ -1,0 +1,3 @@
+[submodule "libs/oceanengine_sdk"]
+	path = libs/oceanengine_sdk
+	url = git@github.com:tiankongzhise/oceanengine_sdk_py.git
