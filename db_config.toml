@@ -5,6 +5,13 @@ cursorclass = "dict"
     charset = "utf8mb4"
     cursorclass = "dict"
 
+[oauth]
+oauth_data_db = 'baidudb'
+oauth_data_table = 'bd_auth_token'
+oauth_data_flag_column_name = 'appId'
+oauth_data_column_value_uid = '1805969627151371'
+
+
 [raw_data_db]
     db = "raw_data"
     charset = "utf8mb4"
