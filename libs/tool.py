@@ -96,7 +96,8 @@ def get_oauth_client_and_update_token():
     oceanengine_param = db_client.select(f'select * from {oauth_config['oauth_data_table']} where {oauth_config['oauth_data_flag_column_name']} = "{oauth_config['oauth_data_column_value_uid']}"')
     format_oceanengine_param = convert_dict_keys(oceanengine_param[0], 'snake')
     client = OceanengineSdkClient(format_oceanengine_param)
-    new_oauth_token = client.oauth_sign()
+    # new_oauth_token = client.oauth_sign()
+    new_oauth_token = {'app_id': '1805969627151371', 'secret_key': '0cb84b67505483a617f983e3eaf33434b690baab', 'access_token': 'b5a3436b7f9bfae4e0f56552a8dfbd417d4c8f76', 'refresh_token': '3d00db4b32c603d0c9da3ad92fd5742683ae0863', 'expires_time': datetime.datetime(2025, 1, 8, 21, 23, 44), 'refresh_expires_time': datetime.datetime(2025, 2, 6, 21, 23, 44), 'auth_code': 'e15b25e0db733a81c4a6019d561d3c74ed23a5be', 'user_id': '92403628013', 'user_name': '创想策划汇'}
     print(f'new_oauth_token:{new_oauth_token}')
     format_oauth_token = convert_dict_keys(new_oauth_token, 'small_camel')
     print(format_oauth_token)

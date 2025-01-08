@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import os
 
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 
 from libs.tool import save_data_to_csv
 from libs.tool import get_oauth_client_and_update_token
 
 class FetcherResult(BaseModel):
     total_page :int= 0,
-    success_page:list[int]= [],
-    data:list[dict]= [],
-    error_page:list[int]= [],
+    success_page:list[int]= Field(default_factory=list),
+    data:list[dict]= Field(default_factory=list),
+    error_page:list[int]= Field(default_factory=list),
     success_page_count:int= 0
 
 
@@ -26,14 +26,7 @@ class ReportFetcher(object):
 
         self.oceanengine_client = get_oauth_client_and_update_token()
 
-        self.basic_data_report_result = FetcherResult()
 
-
-        self._fetch_report_result_mapping = {
-            'BASIC_DATA': {
-                '': self.basic_data_report_result
-            }
-        }
 
 
 
@@ -58,15 +51,19 @@ class ReportFetcher(object):
         if data['code'] != 0:
             raise Exception(f'获取自定义报表可用指标和维度失败,code:{data["code"]},message:{data["message"]},requestId:{data["requestId"]}')
         return data
-
-    def update_fetch_report_result(self, report_topic, report_type,report_rsp):
-        obj = self._fetch_report_result_mapping[report_topic][report_type]
-        obj.total_page = report_rsp['data']['page_info']['total_page']
-        obj.success_page.append(report_rsp['data']['page_info']['page'])
-
-
-
+    @staticmethod
+    def update_fetch_report_result(result: FetcherResult, page_number:int,report_rsp:dict):
+        if report_rsp['code'] != 0:
+            result.error_page.append(page_number)
+            return f'page_number:{page_number} err,message:{report_rsp["message"]}'
+        result.total_page = report_rsp['data']['page_info']['total_page']
+        result.success_page.append(report_rsp['data']['page_info']['page'])
+        result.data.extend(report_rsp['data']['rows'])
+        result.success_page_count = len(result.success_page)
+        return f'page_number:{page_number} success'
     def fetch_basic_data_report(self, start_date, end_date, report_type=''):
+        result = FetcherResult()
+
         common_dimensions = [
             'ad_id', 'ad_name', 'campaign_id', 'campaign_name', 'creative_id', 'creative_name',
             'creative_status', 'creative_type', 'creative_word_id', 'creative_word_name',
@@ -99,10 +96,13 @@ class ReportFetcher(object):
         data = self.oceanengine_client.v3___0_report_custom_get(query_params)
         if data['code'] != 0:
             raise Exception(f'获取自定义报表失败,code:{data["code"]},message:{data["message"]},requestId:{data["requestId"]}')
-
+        self.update_fetch_report_result(result, 1, data)
         while page_number < data['data']['page_info']['total_page']:
             page_number = page_number + 1
             query_params['page'] = page_number
+            data = self.oceanengine_client.v3___0_report_custom_get(query_params)
+            self.update_fetch_report_result(result, page_number, data)
+        return result
 
 
 
