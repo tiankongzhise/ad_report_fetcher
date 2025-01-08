@@ -1,0 +1,47 @@
+[hourly_report]
+    dimensions = []
+    metrics = []
+    BASIC_DATA = {}
+    QUERY_DATA = {}
+    BIDWORD_DATA = {}
+    MATERIAL_DATA = {}
+    PRODUCT_DATA = {}
+    ONE_KEY_BOOST_DATA = {}
+    DMP_DATA = {}
+    VIDEO_DUARATION_DATA = {}
+
+[daily_report]
+    dimensions = []
+    metrics = []
+    BASIC_DATA = {}
+    QUERY_DATA = {}
+    BIDWORD_DATA = {}
+    MATERIAL_DATA = {}
+    PRODUCT_DATA = {}
+    ONE_KEY_BOOST_DATA = {}
+    DMP_DATA = {}
+    VIDEO_DUARATION_DATA = {}
+
+[city_report]
+    dimensions = []
+    metrics = []
+    BASIC_DATA = {}
+    QUERY_DATA = {}
+    BIDWORD_DATA = {}
+    MATERIAL_DATA = {}
+    PRODUCT_DATA = {}
+    ONE_KEY_BOOST_DATA = {}
+    DMP_DATA = {}
+    VIDEO_DUARATION_DATA = {}
+
+[user_profile_report]
+    dimensions = []
+    metrics = []
+    BASIC_DATA = {}
+    QUERY_DATA = {}
+    BIDWORD_DATA = {}
+    MATERIAL_DATA = {}
+    PRODUCT_DATA = {}
+    ONE_KEY_BOOST_DATA = {}
+    DMP_DATA = {}
+    VIDEO_DUARATION_DATA = {}
