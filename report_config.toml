@@ -1,12 +1,16 @@
+report_topic = [
+            'BASIC_DATA', 'QUERY_DATA', 'BIDWORD_DATA', 'MATERIAL_DATA',
+            'PRODUCT_DATA', 'ONE_KEY_BOOST_DATA', 'DMP_DATA', 'VIDEO_DUARATION_DATA'
+        ]
 #报表维度不能超过10
 [hourly_report]
     [hourly_report.BASIC_DATA]
         dimensions = ['stat_time_hour','cdp_project_id','cdp_project_name','campaign_type','landing_type','external_action',
             'pricing','deep_external_action','ad_platform_cdp_project_download_type','ad_platform_cdp_project_download_url',
-            'ad_platform_cdp_project_action_track_url','delivery_mode','cdp_marketing_goal','is_search_blue_flow_package',
-            'game_addiction_name','multi_asset_switch','cdp_promotion_id','cdp_promotion_name','ad_platform_cdp_promotion_bid',
-            'ad_platform_cdp_promotion_deep_cpa_bid','ad_platform_cdp_promotion_roi_goal','native_type',
-            'aweme_id','aweme_nick_name','app_code','package_name','image_mode'
+#            'ad_platform_cdp_project_action_track_url','delivery_mode','cdp_marketing_goal','is_search_blue_flow_package',
+#            'game_addiction_name','multi_asset_switch','cdp_promotion_id','cdp_promotion_name','ad_platform_cdp_promotion_bid',
+#            'ad_platform_cdp_promotion_deep_cpa_bid','ad_platform_cdp_promotion_roi_goal','native_type',
+#            'aweme_id','aweme_nick_name','app_code','package_name','image_mode'
         ]
         metrics = ['stat_cost','show_cnt','click_cnt','attribution_convert_cnt','attribution_deep_convert_cnt','convert_cnt',
         'deep_convert_cnt','click_start_cnt','download_finish_cnt','install_finish_cnt','active','active_register','game_addiction',
@@ -32,7 +36,45 @@
     VIDEO_DUARATION_DATA = {}
 
 [daily_report]
-    BASIC_DATA = {}
+    [daily_report.BASIC_DATA.campaign_type]
+            dimensions = ['stat_time_month','cdp_project_id','cdp_project_name','cdp_promotion_id','cdp_promotion_name',
+#                'image_mode', 'cdp_marketing_goal','app_code','native_type','delivery_mode',
+            'campaign_type','landing_type','external_action','pricing','deep_external_action'
+#            'game_addiction_name','multi_asset_switch','cdp_promotion_id','cdp_promotion_name','ad_platform_cdp_promotion_bid',
+#            'ad_platform_cdp_promotion_deep_cpa_bid','ad_platform_cdp_promotion_roi_goal','native_type',
+#            'aweme_id','aweme_nick_name','app_code','package_name','image_mode'
+        ]
+        metrics = ['stat_cost','show_cnt','click_cnt','attribution_convert_cnt','attribution_deep_convert_cnt','convert_cnt',
+        'deep_convert_cnt','click_start_cnt','download_finish_cnt','install_finish_cnt','active','active_register','game_addiction',
+        'attribution_next_day_open_cnt','next_day_open','active_pay','game_pay_count','attribution_game_pay_7d_count',
+        'attribution_active_pay_7d_per_count','in_app_uv','in_app_detail_uv','in_app_cart','in_app_pay','in_app_order',
+        'attribution_retention_2d_cnt','attribution_retention_3d_cnt','attribution_retention_4d_cnt','attribution_retention_5d_cnt',
+        'attribution_retention_6d_cnt','attribution_retention_7d_cnt','attribution_billing_game_pay_7d_count',
+        'phone','form','form_submit','consult','consult_effective','phone_confirm','phone_connect','phone_effective',
+        'clue_connected_average_duration','clue_message_count','wechat']
+        order_by = [{'field'="stat_time_month",'type'='DESC'},
+                    {'field'="stat_cost",'type'='DESC'},
+                    {'field'="cdp_project_id",'type'='ASC'}
+        ]
+        filters = []
+
+        [daily_report.BASIC_DATA.delivery_mode]
+            dimensions = ['stat_time_month','cdp_project_id','cdp_project_name','cdp_promotion_id','cdp_promotion_name',
+            'delivery_mode','cdp_marketing_goal','is_search_blue_flow_package','game_addiction_name','native_type'
+            ]
+            metrics = ['stat_cost','show_cnt','click_cnt','attribution_convert_cnt','attribution_deep_convert_cnt','convert_cnt',
+            'deep_convert_cnt','click_start_cnt','download_finish_cnt','install_finish_cnt','active','active_register','game_addiction',
+            'attribution_next_day_open_cnt','next_day_open','active_pay','game_pay_count','attribution_game_pay_7d_count',
+            'attribution_active_pay_7d_per_count','in_app_uv','in_app_detail_uv','in_app_cart','in_app_pay','in_app_order',
+            'attribution_retention_2d_cnt','attribution_retention_3d_cnt','attribution_retention_4d_cnt','attribution_retention_5d_cnt',
+            'attribution_retention_6d_cnt','attribution_retention_7d_cnt','attribution_billing_game_pay_7d_count',
+            'phone','form','form_submit','consult','consult_effective','phone_confirm','phone_connect','phone_effective',
+            'clue_connected_average_duration','clue_message_count','wechat']
+            order_by = [{'field'="stat_time_month",'type'='DESC'},
+                        {'field'="stat_cost",'type'='DESC'},
+                        {'field'="cdp_project_id",'type'='ASC'}
+            ]
+            filters = []
     QUERY_DATA = {}
     BIDWORD_DATA = {}
     MATERIAL_DATA = {}

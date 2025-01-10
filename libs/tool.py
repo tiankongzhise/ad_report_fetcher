@@ -1,12 +1,26 @@
 from typing import Mapping,Iterator
-import pandas
 import os,sys
-import tomllib
 import datetime
+
+import pandas
+import tomllib
+from pydantic import BaseModel,Field
 
 from libs.oceanengine_sdk.src.oceanengine_sdk_py.oncenengine_sdk_client import OceanengineSdkClient
 from libs.oceanengine_sdk.src.oceanengine_sdk_py.db.db_client import DbClient
 from libs.format_converter import convert_dict_keys
+
+
+class FetcherResult(BaseModel):
+    total_page :int= 0
+
+    # noinspection PyDataclass
+    success_page:list[int]= Field(default_factory=list)
+    # noinspection PyDataclass
+    data:list[dict]= Field(default_factory=list)
+    # noinspection PyDataclass
+    error_page:list[int]= Field(default_factory=list)
+    success_page_count:int= 0
 
 
 
@@ -113,3 +127,20 @@ def get_oauth_client_and_update_token():
     update_result = db_client.update(update_sql, update_data)
     print(f'update_result:{update_result}')
     return client
+
+def parse_report_data(report_data:FetcherResult)->list[dict]:
+    """
+    :param report_data:数据报告结果
+    :return 由结果dict组成的list
+    解析report_data中的data，返回一个由dict组成的list
+    """
+    if not report_data.data:
+        return []
+    result = []
+    for item in report_data.data:
+        temp_dict = {}
+        temp_dict.update(item['dimensions'])
+        temp_dict.update(item['metrics'])
+        result.append(temp_dict)
+    return result
+
