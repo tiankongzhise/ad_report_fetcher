@@ -2,9 +2,12 @@
 import os
 
 from pydantic import BaseModel,Field
+import tomllib
 
 from libs.tool import save_data_to_csv
 from libs.tool import get_oauth_client_and_update_token
+from libs.tool import find_toml_file
+
 
 class FetcherResult(BaseModel):
     total_page :int= 0,
@@ -25,6 +28,9 @@ class ReportFetcher(object):
             os.mkdir(self.custom_config_path)
 
         self.oceanengine_client = get_oauth_client_and_update_token()
+        with open(find_toml_file('report_config.toml'), 'rb') as f:
+            self.report_config = tomllib.load(f)
+
 
 
 
@@ -61,41 +67,24 @@ class ReportFetcher(object):
         result.data.extend(report_rsp['data']['rows'])
         result.success_page_count = len(result.success_page)
         return f'page_number:{page_number} success'
-    def fetch_basic_data_report(self, start_date, end_date, report_type=''):
+    def fetch_report(self, start_date, end_date, report_topic, report_type):
         result = FetcherResult()
-
-        common_dimensions = [
-            'ad_id', 'ad_name', 'campaign_id', 'campaign_name', 'creative_id', 'creative_name',
-            'creative_status', 'creative_type', 'creative_word_id', 'creative_word_name',
-            'creative_word_status', 'creative_word_type', 'creative_word_value', 'creative_word_value_type',
-            'creative_word_value_value', 'create']
-        common_metrics = [
-            'ad_cost', 'ad_cost_rank', 'ad_cost_rank_rate', 'ad_cost_rank_rate_rank', 'ad_cost_rank_rate_rank_rate',
-            'ad_cost_rank_rate_rank_rate_rank', 'ad_cost_rank_rate_rank_rate_rank_rate',
-            'ad_cost_rank_rate_rank_rate_rank_rate_rank', 'ad_cost_rank_rate_rank_rate_rank_rate_rank_rate',
-        ]
-        add_dimensions = []
-        add_metrics = []
-
-        if report_type == '':
-            add_dimensions = []
-            add_metrics = []
-
         page_number = 1
         query_params = {
             "advertiser_id": self.advertiser_id,
             'data_topic': 'BASIC_DATA',
-            "dimensions":common_dimensions.extend(add_dimensions),
-            "metrics":common_metrics.extend(add_metrics),
+            "dimensions":self.report_config[report_type][report_topic]['dimensions'],
+            "metrics":self.report_config[report_type][report_topic]['metrics'],
             "start_time": start_date,
             "end_time": end_date,
-            "order_by":[{"field":'',"type":'DESC'},{"field":'',"type":'ASC'}],
+            "order_by":self.report_config[report_type][report_topic]['order_by'],
             "page":page_number,
-            "page_size":100
+            "page_size":100,
+            'filters': self.report_config[report_type][report_topic]['filters']
         }
         data = self.oceanengine_client.v3___0_report_custom_get(query_params)
         if data['code'] != 0:
-            raise Exception(f'获取自定义报表失败,code:{data["code"]},message:{data["message"]},requestId:{data["requestId"]}')
+            raise Exception(f'获取自定义报表失败,code:{data["code"]},message:{data["message"]},request_id:{data["request_id"]}')
         self.update_fetch_report_result(result, 1, data)
         while page_number < data['data']['page_info']['total_page']:
             page_number = page_number + 1
@@ -108,4 +97,8 @@ class ReportFetcher(object):
 
 if __name__ == '__main__':
     report_fetcher = ReportFetcher(advertiser_id=1801616765879323)
-    report_fetcher.fetch_and_save_custom_configs()
+    report_topic = 'BASIC_DATA'
+    report_type = 'hourly_report'
+    report = report_fetcher.fetch_report(start_date='2024-05-01', end_date='2024-08-31', report_topic=report_topic, report_type=report_type)
+    report_save_name = f'{report_fetcher.custom_config_path}{report_topic}_{report_type}.csv'
+    print(report)
