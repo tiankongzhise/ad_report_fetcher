@@ -1,10 +1,11 @@
-from typing import Mapping,Iterator
+from typing import Mapping,Iterator,Literal,Mapping
 import os,sys
 import datetime
 
 import pandas
 import tomllib
 from pydantic import BaseModel,Field
+from datetime import datetime, timedelta
 
 from libs.oceanengine_sdk.src.oceanengine_sdk_py.oncenengine_sdk_client import OceanengineSdkClient
 from libs.oceanengine_sdk.src.oceanengine_sdk_py.db.db_client import DbClient
@@ -21,6 +22,8 @@ class FetcherResult(BaseModel):
     # noinspection PyDataclass
     error_page:list[int]= Field(default_factory=list)
     success_page_count:int= 0
+
+
 
 
 
@@ -144,3 +147,56 @@ def parse_report_data(report_data:FetcherResult)->list[dict]:
         result.append(temp_dict)
     return result
 
+
+def split_date_range(start_date:str,
+                     end_date:str,
+                     interval:Literal['hourly', 'daily', int])->list[Mapping]:
+    """
+    将日期区间按需求分割成对应的日期区间dict形成的list。
+
+    :param start_date: 开始日期，格式为 'YYYY-MM-DD'
+    :param end_date: 结束日期，格式为 'YYYY-MM-DD'
+    :param interval: 分割间隔，可以是 'hourly', 'daily', 或一个整数
+    :return: 包含日期区间的dict列表
+    """
+    start = datetime.strptime(start_date, '%Y-%m-%d')
+    end = datetime.strptime(end_date, '%Y-%m-%d')
+    result = []
+
+
+    if interval == 'daily':
+        def next_month(date):
+            if date.month == 12:
+                return date.replace(year=date.year + 1, month=1, day=1)
+            else:
+                return date.replace(month=date.month + 1, day=1)
+
+        def get_month_end(date):
+            next_m = next_month(date)
+            return next_m - timedelta(days=1)
+
+        current = start
+        while current < end:
+            month_end = get_month_end(current)
+            if month_end > end:
+                month_end = end
+            result.append({'start_date': current.strftime('%Y-%m-%d'), 'end_date': month_end.strftime('%Y-%m-%d')})
+            current = next_month(current)
+        return  result
+
+    if interval == 'hourly':
+        delta = timedelta(days=7)
+    elif isinstance(interval, int):
+        delta = timedelta(days=interval)
+    else:
+        raise ValueError("Invalid interval type. Must be 'hourly', 'daily', or an integer.")
+
+    current = start
+    while current < end:
+        next_interval = current + delta
+        if next_interval > end:
+            next_interval = end
+        result.append({'start_date': current.strftime('%Y-%m-%d'), 'end_date': next_interval.strftime('%Y-%m-%d')})
+        current = next_interval+timedelta(days=1)
+
+    return result

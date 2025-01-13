@@ -2,13 +2,15 @@
 import os
 
 import tomllib
-from typing import Literal
+from operator import invert
+from typing import Literal, Mapping
 
 from libs.tool import save_data_to_csv
 from libs.tool import get_oauth_client_and_update_token
 from libs.tool import find_toml_file
 from libs.tool import FetcherResult
 from libs.tool import parse_report_data
+from libs.tool import split_date_range
 
 REPORT_TOPIC = Literal[
             'BASIC_DATA', 'QUERY_DATA', 'BIDWORD_DATA', 'MATERIAL_DATA',
@@ -67,7 +69,7 @@ class ReportFetcher(object):
         result.data.extend(report_rsp['data']['rows'])
         result.success_page_count = len(result.success_page)
         return result
-    def fetch_report_by_dimensions(self,
+    def fetch_report(self,
                      start_date:str,
                      end_date:str,
                      report_topic:REPORT_TOPIC,
@@ -121,6 +123,49 @@ class ReportFetcher(object):
             self.update_fetch_report_result(result, page_number, data)
         return result
 
+    def fetch_report_all(self,
+                        start_date: str,
+                        end_date: str,
+                        report_topic: REPORT_TOPIC,
+                        report_type: Literal['hourly_report', 'daily_report', 'city_report', 'user_profile_report'],
+                        report_class: Literal['campaign_type', 'delivery_mode'],
+                        page_number: int | None = None)->list[Mapping]:
+        """
+        :param start_date:开始时间。格式为：yyyy-MM-dd。例如2022-08-01
+
+        :param end_date:结束时间。格式为：yyyy-MM-dd。例如2022-08-01
+
+        :param report_topic:数据主题,枚举类型，BASIC_DATA广告基础数据，QUERY_DATA搜索词数据，BIDWORD_DATA关键词数据，
+        MATERIAL_DATA素材数据，PRODUCT_DATA产品数据，ONE_KEY_BOOST_DATA一键起量（巨量广告升级版），DMP_DATA人群包数据，
+
+
+        :param report_type:报告类型，枚举类型，枚举值：hourly_report小时报，daily_report日报，city_report地域报告，
+        user_profile_report人群属性报告
+
+        :param page_number:页码,如果为None，则获取从第一页开始的所有数据，如果非None，则获取指定页单页数据。
+
+        :return:FetcherResult类
+        """
+        result = []
+        if report_type == 'hourly_report':
+            data_interval = 'hourly'
+        else:
+            data_interval = 'daily'
+
+        data_range = split_date_range(start_date, end_date, data_interval)
+        for data_range_item in data_range:
+            temp = self.fetch_report(start_date=data_range_item['start_date'],
+                                     end_date=data_range_item['end_date'],
+                                     report_topic=report_topic,
+                                     report_type=report_type,
+                                     report_class=report_class,
+                                     page_number=page_number)
+            result.append({'start_date':data_range_item['start_date'],'end_date':data_range_item['end_date'],'report':temp})
+        return result
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -128,11 +173,13 @@ if __name__ == '__main__':
     report_topic = 'BASIC_DATA'
     report_type = 'daily_report'
     report_class = 'delivery_mode'
-    report = report_fetcher.fetch_report_by_dimensions(start_date='2024-05-01',
-                                                       end_date='2024-08-31',
-                                                       report_topic=report_topic,
-                                                       report_type=report_type,
-                                                       report_class=report_class)
-    report_save_name = f'{report_fetcher.custom_config_path}{report_topic}_{report_type}_{report_class}.csv'
-    data = parse_report_data(report)
-    save_data_to_csv(data, report_save_name)
+    report = report_fetcher.fetch_report_all(start_date='2024-05-01',
+                                         end_date='2024-08-31',
+                                         report_topic=report_topic,
+                                         report_type=report_type,
+                                         report_class=report_class)
+
+    for item in report:
+        report_save_name = f'{report_fetcher.custom_config_path}{item['start_date']}_{item['end_date']}_{report_topic}_{report_type}_{report_class}.csv'
+        data = parse_report_data(item['report'])
+        save_data_to_csv(data, report_save_name)

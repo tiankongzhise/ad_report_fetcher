@@ -25,8 +25,22 @@ report_topic = [
                     {'field'="cdp_project_id",'type'='ASC'}
         ]
         filters = []
-
-
+    [hourly_report.BASIC_DATA.promotion_bid]
+            dimensions = ['stat_time_hour','cdp_project_id','cdp_project_name','cdp_promotion_id','cdp_promotion_name',
+            'ad_platform_cdp_promotion_bid','ad_platform_cdp_promotion_deep_cpa_bid','ad_platform_cdp_promotion_roi_goal','pricing','deep_external_action']
+            metrics = ['stat_cost','show_cnt','click_cnt','attribution_convert_cnt','attribution_deep_convert_cnt','convert_cnt',
+            'deep_convert_cnt','click_start_cnt','download_finish_cnt','install_finish_cnt','active','active_register','game_addiction',
+            'attribution_next_day_open_cnt','next_day_open','active_pay','game_pay_count','attribution_game_pay_7d_count',
+            'attribution_active_pay_7d_per_count','in_app_uv','in_app_detail_uv','in_app_cart','in_app_pay','in_app_order',
+            'attribution_retention_2d_cnt','attribution_retention_3d_cnt','attribution_retention_4d_cnt','attribution_retention_5d_cnt',
+            'attribution_retention_6d_cnt','attribution_retention_7d_cnt','attribution_billing_game_pay_7d_count',
+            'phone','form','form_submit','consult','consult_effective','phone_confirm','phone_connect','phone_effective',
+            'clue_connected_average_duration','clue_message_count','wechat']
+            order_by = [{'field'="stat_time_hour",'type'='DESC'},
+                        {'field'="stat_cost",'type'='DESC'},
+                        {'field'="cdp_project_id",'type'='ASC'}
+            ]
+            filters = []
     QUERY_DATA = {}
     BIDWORD_DATA = {}
     MATERIAL_DATA = {}
@@ -37,7 +51,7 @@ report_topic = [
 
 [daily_report]
     [daily_report.BASIC_DATA.campaign_type]
-            dimensions = ['stat_time_month','cdp_project_id','cdp_project_name','cdp_promotion_id','cdp_promotion_name',
+            dimensions = ['stat_time_day','cdp_project_id','cdp_project_name','cdp_promotion_id','cdp_promotion_name',
 #                'image_mode', 'cdp_marketing_goal','app_code','native_type','delivery_mode',
             'campaign_type','landing_type','external_action','pricing','deep_external_action'
 #            'game_addiction_name','multi_asset_switch','cdp_promotion_id','cdp_promotion_name','ad_platform_cdp_promotion_bid',
@@ -52,15 +66,16 @@ report_topic = [
         'attribution_retention_6d_cnt','attribution_retention_7d_cnt','attribution_billing_game_pay_7d_count',
         'phone','form','form_submit','consult','consult_effective','phone_confirm','phone_connect','phone_effective',
         'clue_connected_average_duration','clue_message_count','wechat']
-        order_by = [{'field'="stat_time_month",'type'='DESC'},
+        order_by = [{'field'="stat_time_day",'type'='DESC'},
                     {'field'="stat_cost",'type'='DESC'},
                     {'field'="cdp_project_id",'type'='ASC'}
         ]
         filters = []
 
         [daily_report.BASIC_DATA.delivery_mode]
-            dimensions = ['stat_time_month','cdp_project_id','cdp_project_name','cdp_promotion_id','cdp_promotion_name',
-            'delivery_mode','cdp_marketing_goal','is_search_blue_flow_package','game_addiction_name','native_type'
+            #game_addiction_name与指标存在冲突
+            dimensions = ['stat_time_day','cdp_project_id','cdp_project_name','cdp_promotion_id','cdp_promotion_name',
+            'delivery_mode','cdp_marketing_goal','is_search_blue_flow_package','native_type'
             ]
             metrics = ['stat_cost','show_cnt','click_cnt','attribution_convert_cnt','attribution_deep_convert_cnt','convert_cnt',
             'deep_convert_cnt','click_start_cnt','download_finish_cnt','install_finish_cnt','active','active_register','game_addiction',
@@ -70,7 +85,7 @@ report_topic = [
             'attribution_retention_6d_cnt','attribution_retention_7d_cnt','attribution_billing_game_pay_7d_count',
             'phone','form','form_submit','consult','consult_effective','phone_confirm','phone_connect','phone_effective',
             'clue_connected_average_duration','clue_message_count','wechat']
-            order_by = [{'field'="stat_time_month",'type'='DESC'},
+            order_by = [{'field'="stat_time_day",'type'='DESC'},
                         {'field'="stat_cost",'type'='DESC'},
                         {'field'="cdp_project_id",'type'='ASC'}
             ]
