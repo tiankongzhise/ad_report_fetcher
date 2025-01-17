@@ -10,6 +10,7 @@ oauth_data_db = 'baidudb'
 oauth_data_table = 'bd_auth_token'
 oauth_data_flag_column_name = 'appId'
 oauth_data_column_value_uid = '1805969627151371'
+where_conditions = {'appId'='1805969627151371', "userName" = "创想策划汇" }
 
 
 [raw_data_db]

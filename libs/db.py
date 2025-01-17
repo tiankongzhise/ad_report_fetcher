@@ -4,7 +4,6 @@ import os
 
 from sqlmodel import SQLModel, Field,  create_engine
 from sqlmodel import Column,Integer,String,Text,JSON,DateTime,UniqueConstraint
-import datetime
 
 import dotenv
 dotenv.load_dotenv()
@@ -18,11 +17,10 @@ DB_PORT = os.getenv('DB_PORT')
 
 # 构建认证数据库引擎
 oauth_engine = create_engine(
-    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/baidudb",
-    echo=True
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/baidudb"
 )
 
-class BdAuthToken(SQLModel, table=True):
+class OauthTable(SQLModel, table=True):
     __tablename__ = 'bd_auth_token'
 
     key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True, index=True))
@@ -37,24 +35,16 @@ class BdAuthToken(SQLModel, table=True):
     bdccAccountDict: dict = Field(sa_column=Column(JSON, nullable=True))
     expiresTime: datetime.datetime = Field(sa_column=Column(DateTime, nullable=True))
     refreshExpiresTime: datetime.datetime = Field(sa_column=Column(DateTime, nullable=True))
-    tableUpdateTime: datetime.datetime = Field(sa_column=Column(DateTime, default=None, onupdate=lambda: DateTime.utcnow()))
+    tableUpdateTime: datetime.datetime = Field(sa_column=Column(DateTime, default=None))
 
     __table_args__ = (
         UniqueConstraint('userId', name='idx_only'),
     )
 
+oceanengine_engine = create_engine(
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/oceanengine"
+)
 
-# test_engine = create_engine(
-#     f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/test_db",
-#     echo=True
-# )
-#
-# class TestTable(SQLModel, table=True):
-#     __tablename__ = 'test_table'
-#     id:int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True, index=True))
-#     name:str
-#     age:int
-#     created_at:DateTime
-#
-#     class Config:
-#         arbitrary_types_allowed = True
+class OceanAdHourExternalActionTable(SQLModel):
+    __tablename__ = 'oceanengine_ad_hour_external_action'
+    auto_key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True, index=True))

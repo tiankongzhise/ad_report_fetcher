@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from libs.db import BdAuthToken,oauth_engine
+from libs.db import OauthTable,oauth_engine
 # from libs.db import test_engine,TestTable
 from sqlmodel import Session,select
 from dataclasses import dataclass
