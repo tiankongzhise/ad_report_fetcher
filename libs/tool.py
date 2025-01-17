@@ -27,7 +27,7 @@ class FetcherResult(BaseModel):
 
 
 
-def find_toml_file(
+def find_config_path(
         filename: str = 'pyproject.toml',
         raise_error_if_not_found: bool = False,
         usecwd: bool = False,
@@ -103,7 +103,7 @@ def get_oauth_client_and_update_token():
     :return:oauthed_oceanengine_client
     """
 
-    db_config_toml_path = find_toml_file(filename='db_config.toml')
+    db_config_toml_path = find_config_path(filename='db_config.toml')
     if not db_config_toml_path:
         raise FileNotFoundError('未找到 db_config.toml 文件')
     with open(db_config_toml_path, 'rb') as f:

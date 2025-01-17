@@ -7,7 +7,7 @@ from typing import Literal, Mapping
 
 from libs.tool import save_data_to_csv
 from libs.tool import get_oauth_client_and_update_token
-from libs.tool import find_toml_file
+from libs.tool import find_config_path
 from libs.tool import FetcherResult
 from libs.tool import parse_report_data
 from libs.tool import split_date_range
@@ -29,7 +29,7 @@ class ReportFetcher(object):
         self.custom_config_path = custom_config_path
         if not os.path.exists(self.custom_config_path):
             os.mkdir(self.custom_config_path)
-        with open(find_toml_file('report_config.toml'), 'rb') as f:
+        with open(find_config_path('report_config.toml'), 'rb') as f:
             self.report_config = tomllib.load(f)
 
         self.oceanengine_client = get_oauth_client_and_update_token()
