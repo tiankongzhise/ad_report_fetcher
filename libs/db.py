@@ -44,7 +44,8 @@ class OauthTable(SQLModel, table=True):
     )
 
 oceanengine_engine = create_engine(
-    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/oceanengine"
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/oceanengine",
+    echo = True
 )
 
 class OceanAdProjectListTable(SQLModel,table=True):
@@ -80,8 +81,8 @@ class OceanAdProjectListTable(SQLModel,table=True):
     dpa_product_target:dict = Field(sa_column=Column(JSON, nullable=True))
     dpa_adtype:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     delivery_product:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
-    delivery_mediumnew:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
-    multi_delivery_mediumnew:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    delivery_medium:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    multi_delivery_medium:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     download_url:str = Field(sa_column=Column(Text( collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     download_type:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     download_mode:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
@@ -107,6 +108,10 @@ class OceanAdProjectListTable(SQLModel,table=True):
     open_url_params:str = Field(sa_column=Column(Text( collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     budget_group_id:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     if_newcustomerdelivery:bool = Field(sa_column=Column(Boolean, nullable=True))
+    internal_advertiser_info:dict = Field(sa_column=Column(JSON, nullable=True))
+    landing_type:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    star_task_version:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+
 
 
     __table_args__ = (
@@ -174,6 +179,6 @@ class OceanAdHourExternalActionTable(SQLModel):
     auto_key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True, index=True))
 
 
-tables_to_create = [OceanAdPromotionListTable.__table__]
+tables_to_create = [OceanAdPromotionListTable.__table__,OceanAdProjectListTable.__table__]
 
 SQLModel.metadata.create_all(bind=oceanengine_engine,tables=tables_to_create)

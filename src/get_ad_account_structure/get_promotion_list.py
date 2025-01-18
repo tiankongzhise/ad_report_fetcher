@@ -1,19 +1,32 @@
-from libs.tool import create_oauth_client
-from libs.db import oceanengine_engine,OceanAdPromotionListTable
-from sqlmodel import Session
+from libs.oceanengine_sdk.src.oceanengine_sdk_py import OceanengineSdkClient
 import json
 
-class FeatchPromotionList(object):
-    def __init__(self,
-                 advertiser_id:str,
-                 custom_config_path:str='./data/'):
-        self.advertiser_id = advertiser_id
-        self.custom_config_path = custom_config_path
-        self.oceanengine_client = create_oauth_client()
 
-    def fetch(self,page:int=1):
+class FeatchPromotionList(object):
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    def __init__(self,ocean_client:OceanengineSdkClient):
+        self.oceanengine_client = ocean_client
+    def fetch(self, advertiser_id: str | int):
+        result = []
+        rsp = self.fetch_promotion_list(advertiser_id)
+        self.special_trans(rsp)
+        # print(rsp['data']['page_info'])
+        result.extend(rsp['data']['list'])
+        while rsp['data']['page_info']['page'] < rsp['data']['page_info']['total_page']:
+            page = rsp['data']['page_info']['page'] + 1
+            rsp = self.fetch_promotion_list(advertiser_id, page)
+            self.special_trans(rsp)
+            result.extend(rsp['data']['list'])
+        return result
+
+
+    def fetch_promotion_list(self, advertiser_id, page:int=1):
         query={
-            "advertiser_id": self.advertiser_id,
+            "advertiser_id": advertiser_id,
             "fields": [],
             "page": page,
             "page_size": 20
@@ -34,35 +47,18 @@ class FeatchPromotionList(object):
                 item['status_second'] = json.dumps(item['status_second'])
             if 'shop_multi_roi_goals' in item:
                 item['shop_multi_roi_goals'] = json.dumps(item['shop_multi_roi_goals'])
-
             new_list.append(item)
         rsp['data']['list'] = new_list
-        # print(f's e {rsp}')
         return rsp
 
 if __name__ == '__main__':
-    fetcher = FeatchPromotionList(advertiser_id=1802369766232155)
-    result = []
-    rsp = fetcher.fetch()
-    fetcher.special_trans(rsp)
-    # print(rsp['data']['page_info'])
-    result.extend(rsp['data']['list'])
-    while rsp['data']['page_info']['page']<rsp['data']['page_info']['total_page']:
-        page = rsp['data']['page_info']['page']+1
-        rsp = fetcher.fetch(page)
-        fetcher.special_trans(rsp)
-        result.extend(rsp['data']['list'])
-        # print(rsp['data']['page_info'])
-    # promotion = OceanAdPromotionListTable.model_validate(result[0])
-
-    # for temp in result:
-    #     for item in temp.keys():
-    #         if temp[item] is not None:
-    #             if type(temp[item]) not in [str, int, float, bool,dict,None]:
-    #                 print(f'key:{item},value:{temp[item]}',type(temp[item]))
-
-        # print(f'\n key:{item},value:{result[0][item]}\n')
-    # print(result[0])
+    from libs.tool import create_oauth_client
+    from sqlmodel import Session
+    from libs.db import oceanengine_engine,OceanAdPromotionListTable
+    ocean_client = create_oauth_client()
+    fetcher = FeatchPromotionList(ocean_client)
+    promotion_list = fetcher.fetch(advertiser_id=1802369766232155)
     with Session(oceanengine_engine) as session:
-        session.bulk_insert_mappings(OceanAdPromotionListTable,result)
+        for item in promotion_list:
+            session.add(OceanAdPromotionListTable(**item))
         session.commit()
