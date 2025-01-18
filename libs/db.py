@@ -49,7 +49,7 @@ oceanengine_engine = create_engine(
 
 class OceanAdProjectListTable(SQLModel,table=True):
     __tablename__ = 'oceanengine_ad_project_list'
-    auto_key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True, index=True))
+    auto_key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True))
     project_id:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     advertiser_id:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     delivery_mode:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
@@ -71,7 +71,7 @@ class OceanAdProjectListTable(SQLModel,table=True):
     package_name:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     app_name:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     feed_delivery_search:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
-    search_bid_ratio:float = Field(sa_column=Column(DECIMAL(precision=4, scale=2), nullable=True))
+    search_bid_ratio:float = Field(sa_column=Column(DECIMAL(precision=5, scale=2), nullable=True))
     audience_extend:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     keywords:dict = Field(sa_column=Column(JSON, nullable=True))
     blue_flow_package:dict = Field(sa_column=Column(JSON, nullable=True))
@@ -105,10 +105,8 @@ class OceanAdProjectListTable(SQLModel,table=True):
     open_url_type:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     open_url_field:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     open_url_params:str = Field(sa_column=Column(Text( collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
-    budget_group_id:int = Field(sa_column=Column(Integer, nullable=True))
+    budget_group_id:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     if_newcustomerdelivery:bool = Field(sa_column=Column(Boolean, nullable=True))
-    auto_extend_traffic:dict = Field(sa_column=Column(JSON, nullable=True))
-    aweme_user_optimizable_detail:dict = Field(sa_column=Column(JSON, nullable=True))
 
 
     __table_args__ = (
@@ -117,7 +115,7 @@ class OceanAdProjectListTable(SQLModel,table=True):
 
 class OceanAdPromotionListTable(SQLModel, table=True):
     __tablename__ = 'oceanengine_ad_promotion_list'
-    auto_key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True, index=True))
+    auto_key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True))
     promotion_id: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     promotion_name: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     if_newcustomerdelivery: bool = Field(sa_column=Column(Boolean, nullable=True))
@@ -165,6 +163,10 @@ class OceanAdPromotionListTable(SQLModel, table=True):
     union_deep_cpabid: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
     auto_extend_traffic: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     aweme_user_optimizable_detail:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+
+    __table_args__ = (
+        UniqueConstraint('promotion_id', name='idx_only'),
+    )
 
 
 class OceanAdHourExternalActionTable(SQLModel):
