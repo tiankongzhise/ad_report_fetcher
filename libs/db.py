@@ -5,6 +5,8 @@ import os
 from sqlmodel import SQLModel, Field,  create_engine
 from sqlmodel import Column,Integer,String,Text,JSON,DateTime,UniqueConstraint,DECIMAL,Boolean
 
+from sqlalchemy import MetaData
+
 import dotenv
 dotenv.load_dotenv()
 
@@ -81,7 +83,6 @@ class OceanAdProjectListTable(SQLModel,table=True):
     delivery_mediumnew:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     multi_delivery_mediumnew:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     download_url:str = Field(sa_column=Column(Text( collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
-    app_name:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     download_type:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     download_mode:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     launch_type:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
@@ -101,21 +102,76 @@ class OceanAdProjectListTable(SQLModel,table=True):
     audience:dict = Field(sa_column=Column(JSON, nullable=True))
     delivery_setting:dict = Field(sa_column=Column(JSON, nullable=True))
     track_url_setting:dict = Field(sa_column=Column(JSON, nullable=True))
-    dpa_adtype:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     open_url_type:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     open_url_field:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     open_url_params:str = Field(sa_column=Column(Text( collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
     budget_group_id:int = Field(sa_column=Column(Integer, nullable=True))
     if_newcustomerdelivery:bool = Field(sa_column=Column(Boolean, nullable=True))
+    auto_extend_traffic:dict = Field(sa_column=Column(JSON, nullable=True))
+    aweme_user_optimizable_detail:dict = Field(sa_column=Column(JSON, nullable=True))
+
 
     __table_args__ = (
         UniqueConstraint('project_id','advertiser_id', name='idx_only'),
     )
+
+class OceanAdPromotionListTable(SQLModel, table=True):
+    __tablename__ = 'oceanengine_ad_promotion_list'
+    auto_key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True, index=True))
+    promotion_id: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    promotion_name: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    if_newcustomerdelivery: bool = Field(sa_column=Column(Boolean, nullable=True))
+    project_id:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    advertiser_id:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    promotion_create_time: datetime.datetime = Field(sa_column=Column(DateTime, nullable=True))
+    promotion_modify_time: datetime.datetime = Field(sa_column=Column(DateTime, nullable=True))
+    aigc_dynamic_creative_switch:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    learning_phase: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    status: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    status_first: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    status_second: dict = Field(sa_column=Column(JSON, nullable=True, default=''))
+    opt_status: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    star_task_id: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    star_task_version: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    star_auto_material_addition_switch: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    native_setting: dict = Field(sa_column=Column(JSON, nullable=True))
+    has_carry_material:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    blue_flow_package:dict = Field(sa_column=Column(JSON, nullable=True))
+    promotion_related_product: dict = Field(sa_column=Column(JSON, nullable=True))
+    promotion_materials: dict = Field(sa_column=Column(JSON, nullable=True))
+    source:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    is_comment_disable:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    ad_download_status:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    materials_type:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    budget: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    budget_mode: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    bid: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    cpa_bid: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    deep_cpabid: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    roi_goal: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    first_roi_goal: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2)))
+    union_bid_ratio: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    union_bid: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    union_cpa_bid: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    union_deep_cpa_bid: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    union_roi_goal: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    shop_multi_roi_goals: dict = Field(sa_column=Column(JSON, nullable=True))
+    schedule_time:str = Field(sa_column=Column(Text(collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    d7_retention:float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    material_score_info: dict = Field(sa_column=Column(JSON, nullable=True))
+    creative_auto_generate_switch: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    config_id: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci')))
+    brand_info: dict = Field(sa_column=Column(JSON, nullable=True))
+    union_deep_cpabid: float = Field(sa_column=Column(DECIMAL(precision=10, scale=2), nullable=True))
+    auto_extend_traffic: str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+    aweme_user_optimizable_detail:str = Field(sa_column=Column(String(32, collation='utf8mb4_0900_ai_ci'), nullable=True, default=''))
+
 
 class OceanAdHourExternalActionTable(SQLModel):
     __tablename__ = 'oceanengine_ad_hour_external_action'
     auto_key: int = Field(sa_column=Column(Integer, autoincrement=True, nullable=False,default=None, primary_key=True, index=True))
 
 
-ocean_table_list= [OceanAdHourExternalActionTable]
-SQLModel.metadata.create_all(oceanengine_engine)
+tables_to_create = [OceanAdPromotionListTable.__table__]
+
+SQLModel.metadata.create_all(bind=oceanengine_engine,tables=tables_to_create)
