@@ -175,3 +175,6 @@ data/
 
 #临时文件
 temp/
+
+# cursor文件
+.vscode/
