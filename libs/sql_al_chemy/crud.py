@@ -5,7 +5,7 @@ from .type import SQL_TABLE_MODEL
 
 class CURD(object):
     @staticmethod
-    def insert_data_to_database(data: list[dict],
+    def insert_ignore(data: list[dict],
                                 table: Type[SQL_TABLE_MODEL],
                                 session: Session) -> dict:
         """
