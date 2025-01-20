@@ -45,7 +45,11 @@ oauth_session = Session(engine)
 
 
 class Base(DeclarativeBase):
-    pass
+    def to_dict(self):
+        # 获取对象的字典表示
+        result = {c.key: getattr(self, c.key)
+                  for c in self.__table__.columns}
+        return result
 
 
 class OauthTable(Base):

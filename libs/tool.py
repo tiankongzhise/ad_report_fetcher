@@ -136,7 +136,7 @@ def get_oauth_client(is_update_db:bool=True):
             try:
                 session.add(oauth_table_data)
                 session.commit()
-                print(f'更新数据库成功，更新数据：{oauth_table_data}')
+                print(f'更新数据库成功，更新数据：{oauth_table_data.to_dict()}')
             except Exception as e:
                 session.rollback()
                 raise f'get_oauth_client更新数据库失败，错误信息：{e}'
