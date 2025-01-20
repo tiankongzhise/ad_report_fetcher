@@ -7,7 +7,7 @@ import tomllib
 from pydantic import BaseModel,Field
 from datetime import datetime, timedelta
 from sqlmodel import Session,select,update
-
+from . import sql_al_chemy
 
 from libs.db import oauth_engine,OauthTable
 from libs.oceanengine_sdk.src.oceanengine_sdk_py.oncenengine_sdk_client import OceanengineSdkClient
@@ -99,12 +99,17 @@ def save_data_to_csv(data:list[Mapping], file_name):
     df.to_csv(file_name, index=False, encoding='utf-8_sig')
     print(f'数据保存成功，文件名：{file_name}')
 
-def get_oauth_client_and_update_token():
+def get_oauth_client(is_update_db:bool=True):
     """
-    从数据库读入oauth相关参数，初始化OceanengineSdkClient，然后调用oauth_sign()自动获取最新的access_token与refresh_token.
-    并将最新的"accessToken", "refreshToken", "expiresTime", "refreshExpiresTime"更新到oauth数据库中。
-    :return:oauthed_oceanengine_client
+    从数据库读入oauth相关参数，初始化OceanengineSdkClient，然后调用oauth_sign()自动获取最新的access_token
+
+    :param is_update_db:判断是否将更新的token更新到数据库
+
+    :return:oauth oceanengine client
     """
+
+    from sqlalchemy import select
+
 
     db_config_toml_path = find_config_path(filename='db_config.toml')
     if not db_config_toml_path:
@@ -113,25 +118,28 @@ def get_oauth_client_and_update_token():
         all_db_config = tomllib.load(f)
         oauth_config = all_db_config['oauth']
 
-    db_client = DbClient(oauth_config['oauth_data_db'])
-    oceanengine_param = db_client.select(f'select * from {oauth_config['oauth_data_table']} where {oauth_config['oauth_data_flag_column_name']} = "{oauth_config['oauth_data_column_value_uid']}"')
-    format_oceanengine_param = convert_dict_keys(oceanengine_param[0], 'snake')
-    client = OceanengineSdkClient(format_oceanengine_param)
-    new_oauth_token = client.oauth_sign()
-    # new_oauth_token = {'app_id': '1805969627151371', 'secret_key': '0cb84b67505483a617f983e3eaf33434b690baab', 'access_token': 'b5a3436b7f9bfae4e0f56552a8dfbd417d4c8f76', 'refresh_token': '3d00db4b32c603d0c9da3ad92fd5742683ae0863', 'expires_time': datetime.datetime(2025, 1, 8, 21, 23, 44), 'refresh_expires_time': datetime.datetime(2025, 2, 6, 21, 23, 44), 'auth_code': 'e15b25e0db733a81c4a6019d561d3c74ed23a5be', 'user_id': '92403628013', 'user_name': '创想策划汇'}
-    print(f'new_oauth_token:{new_oauth_token}')
-    format_oauth_token = convert_dict_keys(new_oauth_token, 'small_camel')
-    print(format_oauth_token)
-    update_sql, update_data = db_client.generate_sql(
-        table_name=oauth_config['oauth_data_table'],
-        operation="update",
-        columns=["accessToken", "refreshToken", "expiresTime", "refreshExpiresTime"],
-        data=format_oauth_token,
-        conditions=f'{oauth_config["oauth_data_flag_column_name"]} = "{oauth_config["oauth_data_column_value_uid"]}"'
-    )
-    print(f'sql:{update_sql},data:{update_data}')
-    update_result = db_client.update(update_sql, update_data)
-    print(f'update_result:{update_result}')
+    with sql_al_chemy.oauth_session as session:
+        query_app_id = oauth_config['where_conditions']['appId']
+        stmt = (
+            select(sql_al_chemy.OauthTable).where(sql_al_chemy.OauthTable.appId == query_app_id)
+        )
+        oauth_table_data = session.scalars(stmt).one()
+        format_oceanengine_param = params_transform(oauth_table_data)
+        client = OceanengineSdkClient(format_oceanengine_param)
+        new_oauth_token = client.oauth_sign()
+        print(f'new_oauth_token:{new_oauth_token}')
+        oauth_table_data.accessToken = new_oauth_token['access_token']
+        oauth_table_data.refreshToken = new_oauth_token['refresh_token']
+        oauth_table_data.expiresTime = new_oauth_token['expires_time']
+        oauth_table_data.refreshExpiresTime = new_oauth_token['refresh_expires_time']
+        if is_update_db:
+            try:
+                session.add(oauth_table_data)
+                session.commit()
+                print(f'更新数据库成功，更新数据：{oauth_table_data}')
+            except Exception as e:
+                session.rollback()
+                raise f'get_oauth_client更新数据库失败，错误信息：{e}'
     return client
 
 def parse_report_data(report_data:FetcherResult)->list[dict]:
@@ -235,7 +243,7 @@ def create_oauth_client():
         print(f'update_result:{oauth_table_data}')
         return client
 
-def params_transform(params:OauthTable)->Mapping:
+def params_transform(params:OauthTable|sql_al_chemy.OauthTable)->Mapping:
     """
     将params转化为对于的形式
     :param params:

@@ -45,10 +45,10 @@ class FeatchProjectList(object):
 
 if __name__ == '__main__':
 
-    from libs.tool import create_oauth_client
+    from libs.tool import get_oauth_client
     from sqlalchemy import select,or_
     from libs import sql_al_chemy
-    ocean_client = create_oauth_client()
+    ocean_client = get_oauth_client()
     fetcher = FeatchProjectList(ocean_client)
     promotion_list = fetcher.fetch(advertiser_id=1802432784180266)
     with sql_al_chemy.ocean_session as session:
