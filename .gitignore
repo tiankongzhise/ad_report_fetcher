@@ -172,3 +172,9 @@ cython_debug/
 
 # 项目的下载数据
 data/
+
+#临时文件
+temp/
+
+# cursor文件
+.vscode/
