@@ -1,6 +1,5 @@
 import sys
 import os
-import asyncio
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from libs.oceanengine_sdk.src.oceanengine_sdk_py import OceanengineSdkClient
 
