@@ -263,4 +263,81 @@ def params_transform(params:OauthTable|sql_al_chemy.OauthTable)->Mapping:
     }
 
     return result
+
+def parse_html(item:str,file_name:str = 'table_define.csv'):
+    from bs4 import BeautifulSoup
+    import pandas as pd
+    soup = BeautifulSoup(item['data']['content'], 'html.parser')
+
+
+
+    # Find the div with the class 'table-container qz-card-type-block'
+    # Find the table with class 'data-table' and data-id 't75ae23f-jVgXbLbE'
+    table = soup.find('table', class_='data-table', attrs={'data-id': 't75ae23f-jVgXbLbE'})
+
+
+    # # Check if the div was found and print its content
+    # if div_container:
+    #     print(div_container.prettify())
+    # else:
+    #     print("Div not found")
+
+
+    result = []
         
+    if table:
+        # Find the tbody inside the table
+        tbody = table.find('tbody')
+
+        if tbody:
+            # Extract rows from tbody
+            rows = tbody.find_all('tr')
+            
+            # Iterate through rows and extract data
+            for row in rows:
+                # 查找<tr>下的<span>元素，并检查其data-level属性
+                span = row.find('span', attrs={'data-level': lambda x: x and int(x) >= 3})
+                if span:
+                    continue
+        
+                # Extract table headers (th) or table data (td)
+                cells = row.find_all(['th', 'td'])
+                # row_data = [cell.get_text(strip=True) for cell in cells ]
+                row_data = []
+                for cell in cells:
+                    if cell.find('span', attrs={'data-type': 'tag'}):
+                        cell_span = cell.find_all('span')
+                        temp_list = []
+                        for temp in cell_span:
+                            if temp['data-type'] == 'tag':
+                                temp_list.append(temp.get_text(strip=True))
+                        temp_text = cell.get_text(strip=True)
+                        row_data.append(*[temp_text.replace(tag_str,'') for tag_str in temp_list])
+
+                        # print(f'span cell:{cell_span}')
+                        # print(f'value:{[temp.get_text(strip=True) for temp in cell_span if not temp.has_attr('data-type') or temp['data-type'] != 'tag']}')
+                        # row_data.append([temp.get_text(strip=True) for temp in cell_span if not temp.has_attr('data-type') or temp['data-type'] != 'tag']) 
+                    else:
+                        row_data.append(cell.get_text(strip=True))
+                result.append(row_data)
+
+
+
+                # row_data = []
+                # for cell in cells:
+                #     cell_span = cell.find_all('span')
+                #     if cell_span:
+                #         print(f'cell_span:{cell_span}')
+                #         row_data.append([cell.get_text(strip=True) for temp in cell_span if temp.find('span', attrs={'data-type': lambda x:x != 'tag'})]) 
+                #     else:
+                #         print(f'cell_get:{cell}')
+                #         row_data.append(cell.get_text(strip=True))
+                    
+                # result.append(row_data)
+                
+        else:
+            print("Tbody not found inside the table")
+    else:
+        print("Table not found inside the div")
+    df = pd.DataFrame(result[1:],columns=result[0])
+    df.to_csv(file_name,index=False,encoding = 'utf-8-sig')

@@ -7,6 +7,7 @@ from sqlalchemy import Column,String,Integer,DateTime,Text,Boolean,DECIMAL,JSON,
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.schema import MetaData
 
 
@@ -80,6 +81,9 @@ class Base(DeclarativeBase):
                 result[api_key] = result.pop(db_key)
                 
         return result
+
+class ReportBase(DeclarativeBase):
+    pass
 
 
 
@@ -205,10 +209,67 @@ class OceanAdPromotionListTable(Base):
     __table_args__ = (
         UniqueConstraint('promotion_id', name='idx_only'),
     )
-
-
-
-
+class AdReport(Base):
+    __tablename__ = "ad_report"
+    primary_key:Mapped[int] = Column(Integer, primary_key=True, autoincrement=True,default=None,nullable=False )
+    project_id:Mapped[int] = mapped_column(Integer, nullable=True, default="")
+    advertiser_id:Mapped[int] = mapped_column(Integer, nullable=True, default="")
+    delivery_mode:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    delivery_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    landing_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    app_promotion_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    marketing_goal:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    ad_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    opt_status:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    name:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    project_create_time:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    project_modify_time:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    status:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    status_first:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    status_second:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    aigc_dynamic_creative_switch:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    star_task_id:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    star_auto_material_addition_switch:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    pricing:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    package_name:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    app_name:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    feed_delivery_search:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    search_bid_ratio:Mapped[float] = mapped_column(DECIMAL(precision=10, scale=2), nullable=True, default=0)
+    audience_extend:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    keywords:Mapped[dict] = mapped_column(JSON, nullable=True, default=None)
+    blue_flow_package:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    related_product:Mapped[int] = mapped_column(Integer, nullable=True, default="")
+    dpa_categories:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    dpa_product_target:Mapped[dict] = mapped_column(JSON, nullable=True, default=None)
+    delivery_product:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    delivery_medium:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    multi_delivery_mediumnew:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    download_url:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    download_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    download_mode:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    launch_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    promotion_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    open_url:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    ulink_url:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    subscribe_url:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    asset_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    multi_asset_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    micro_promotion_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    quick_app_id:Mapped[int] = mapped_column(Integer, nullable=True, default="")
+    micro_app_instance_id:Mapped[int] = mapped_column(Integer, nullable=True, default="")
+    optimize_goal:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    value_optimized_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    landing_page_stay_time:Mapped[int] = mapped_column(Integer, nullable=True, default="")
+    delivery_range:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    audience:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    delivery_setting:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    track_url_setting:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    dpa_adtype:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    open_url_type:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    open_url_field:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    open_url_params:Mapped[str] = mapped_column(String(64, collation="utf8mb4_0900_ai_ci"), nullable=True, default="")
+    budget_group_id:Mapped[int] = mapped_column(Integer, nullable=True, default="")
+    if_newcustomerdelivery:Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
 
 metadata_obj = MetaData()
 metadata_obj.create_all(engine)
