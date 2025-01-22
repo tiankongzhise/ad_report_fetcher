@@ -1,4 +1,4 @@
-from typing import Mapping,Iterator,Literal,Mapping,Iterable
+from typing import Mapping,Iterator,Literal,Mapping,Type
 import os,sys
 import datetime
 
@@ -7,7 +7,7 @@ import tomllib
 from pydantic import BaseModel,Field
 from datetime import datetime, timedelta
 from sqlmodel import Session,select,update
-from . import sql_al_chemy
+from libs import sql_al_chemy
 
 from libs.db import oauth_engine,OauthTable
 from libs.oceanengine_sdk.src.oceanengine_sdk_py.oncenengine_sdk_client import OceanengineSdkClient
@@ -264,7 +264,7 @@ def params_transform(params:OauthTable|sql_al_chemy.OauthTable)->Mapping:
 
     return result
 
-def parse_html(item:str,file_name:str = 'table_define.csv'):
+def parse_html(item:str,data_id:str,file_name:str = 'table_define.csv'):
     from bs4 import BeautifulSoup
     import pandas as pd
     soup = BeautifulSoup(item['data']['content'], 'html.parser')
@@ -273,7 +273,7 @@ def parse_html(item:str,file_name:str = 'table_define.csv'):
 
     # Find the div with the class 'table-container qz-card-type-block'
     # Find the table with class 'data-table' and data-id 't75ae23f-jVgXbLbE'
-    table = soup.find('table', class_='data-table', attrs={'data-id': 't75ae23f-jVgXbLbE'})
+    table = soup.find('table', class_='data-table', attrs={'data-id': data_id})
 
 
     # # Check if the div was found and print its content
@@ -341,3 +341,27 @@ def parse_html(item:str,file_name:str = 'table_define.csv'):
         print("Table not found inside the div")
     df = pd.DataFrame(result[1:],columns=result[0])
     df.to_csv(file_name,index=False,encoding = 'utf-8-sig')
+
+def check_ocean_doc(table:Type[sql_al_chemy.SQL_TABLE_MODEL],return_list:list[dict])->list[dict]:
+    """
+    检查table和return_list中的keys是否一致
+    :param table:
+    :param return_list:
+    :return: 
+    """
+    result = []
+    table_keys = table.__table__.columns.keys()
+    for temp in return_list:
+        temp_keys = temp.keys()
+        if set(temp_keys) == set(table_keys):
+            continue
+        key_not_in_table = [key for key in temp_keys if key not in table_keys]
+        result.append(
+            {
+                'key_not_in_tabla':key_not_in_table,
+                'value_of_out_key':[{key:(temp[key],type(temp[key]))} for key in key_not_in_table],
+                # 'table_keys':table_keys,
+                'return_id':{"advertiser_id":temp.get('advertiser_id'),"project_id":temp.get('project_id'),'promotion_id':temp.get('promotion_id')}
+            }
+        )
+    return result

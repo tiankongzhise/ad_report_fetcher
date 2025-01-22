@@ -4,12 +4,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 
 
-from .get_project_list import FeatchProjectList
-from .get_promotion_list import FeatchPromotionList
+from get_project_list import FeatchProjectList
+from get_promotion_list import FeatchPromotionList
 from libs.tool import get_oauth_client
 from libs import sql_al_chemy
 from libs.oceanengine_sdk.src.oceanengine_sdk_py import OceanengineSdkClient
-
+from libs.tool import check_ocean_doc
 
 
 class GetAdAccountStructure(object):
@@ -72,7 +72,14 @@ class GetAdAccountStructure(object):
 if __name__ == '__main__':
     item = GetAdAccountStructure(1800168496063497)
     result = item.fetch()
-    x = sql_al_chemy.CURD.insert_data_to_database(result['project_list'],sql_al_chemy.OceanAdProjectListTable,sql_al_chemy.ocean_session)
-    y = sql_al_chemy.CURD.insert_data_to_database(result['promotion_list'],sql_al_chemy.OceanAdPromotionListTable,sql_al_chemy.ocean_session)
-    print(f'x:{x}')
-    print(f'y:{y}')
+    # x = sql_al_chemy.CURD.insert_data_to_database(result['project_list'],sql_al_chemy.OceanAdProjectListTable,sql_al_chemy.ocean_session)
+    # y = sql_al_chemy.CURD.insert_data_to_database(result['promotion_list'],sql_al_chemy.OceanAdPromotionListTable,sql_al_chemy.ocean_session)
+    new_result = check_ocean_doc(sql_al_chemy.oceanengine.AdPromitionTable,result['promotion_list'])
+    # key_not_in_table = set()
+    # for temp in new_result:
+    #     key_not_in_table.update(set(temp['key_not_in_tabla']))
+    # print(key_not_in_table)
+    print(new_result)
+
+    project_not_in_key = {'star_task_version', 'native_setting', 'internal_advertiser_info'}#1802369766232155,7441783527307575307
+    promotion_not_in_key = {'aweme_user_optimizable_detail', 'auto_extend_traffic', 'union_deep_cpabid'}#1802432785730570，7441783527307575307，7441785074430771254

@@ -6,10 +6,11 @@ from typing import Type
 # from libs.sql_al_chemy import SQL_TABLE_MODEL
 from datetime import datetime
 
-csv_file = "e:/github_code_lib/ad_report_fetcher/table.csv"
-df = pd.read_csv(csv_file)
 
-def create_table(class_name:str,table_name:str):
+
+def create_table(fila_path:str,class_name:str,table_name:str):
+    csv_file = fila_path
+    df = pd.read_csv(csv_file)
     print(f'class {class_name}(Base):')
     print(f'    __tablename__ = "{table_name}"')
     print(f'    primary_key:Mapped[int] = Column(Integer, primary_key=True, autoincrement=True,default=None,nullable=False )')
@@ -80,4 +81,5 @@ def create_table(class_name:str,table_name:str):
 #         class_str += f"    {attr} = {getattr(AdReport, attr)}\n"
 
 # print(class_str)
-create_table('AdReport','ad_report')
+if __name__ == '__main__':
+    create_table('AdReport','ad_report')
